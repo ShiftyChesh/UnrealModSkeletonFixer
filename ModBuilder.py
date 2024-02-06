@@ -10,6 +10,7 @@ import pythonfiles.readAnimAsset as ream
 # requires python 3.4+
 
 CONFIG_PATH = "config.json"
+MOD_CONFIG_NAME = "modconfig.json"
 MOD_DIR = "mods"
 MAPPING_DIR = "mapping"
 
@@ -100,7 +101,7 @@ def copy_cooked_files_to_mod(mod_config, cook_content_folder, mod_name):
 def update_mod_config(mod_config, cook_content_folder, mod_name, mod_files):
     """Takes the list of mod files and finds ones with the same name in the cook directory"""
     mapping_dir = f"{MAPPING_DIR}/{mod_name}"
-    mod_config_file = pathlib.Path(f"{mapping_dir}/config.json")
+    mod_config_file = pathlib.Path(f"{mapping_dir}/{MOD_CONFIG_NAME}")
     mod_content_path = ""
 
     mod_cook_paths = []
@@ -132,7 +133,7 @@ def update_mod_config(mod_config, cook_content_folder, mod_name, mod_files):
 
 def read_mod_config(mod_name):
     mapping_dir = f"{MAPPING_DIR}/{mod_name}"
-    mod_config_file = pathlib.Path(f"{mapping_dir}/config.json")
+    mod_config_file = pathlib.Path(f"{mapping_dir}/{MOD_CONFIG_NAME}")
 
     if not mod_config_file.exists():
         return None
