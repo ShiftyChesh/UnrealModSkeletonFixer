@@ -60,6 +60,7 @@ def read_skel_uexp(file_name) -> Sequence[BoneIndex]:
 
 
 def write_skel_uexp_bone_order(file_name, bone_order: Sequence[BoneIndex]):
+    if bone_order is None: return
     with open(file_name, "r+b") as f:
         with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE) as mm:
             root_bone_index = mm.find(b'\xff\xff\xff\xff')

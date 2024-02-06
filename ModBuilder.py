@@ -69,8 +69,9 @@ def bone_realignment(mod_name, mod_files):
 
         # sometimes you just need $100 for a new set of bones
         new_bones = mapper.bone_order_from_mapping(mapping_data, bone_order, name_mappings)
-        ream.write_skel_uexp_bone_order(uexp, new_bones)
-        print(f"Rebuilt bones for Skeleton: {name}")
+        if new_bones is not None:
+            ream.write_skel_uexp_bone_order(uexp, new_bones)
+            print(f"Rebuilt bones for Skeleton: {name}")
 
 
 # run build steps for each mod

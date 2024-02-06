@@ -39,7 +39,7 @@ def bone_order_from_mapping(mapping_data, old_bone_order, old_name_mapping) -> S
         print("Continue by truncating new bones array? y/n")
         answer = input()
         if answer.find('y') == -1:
-            print("Quitting...")
+            print("Not baking bones")
             return []
         while len(mapping_data["bones"]) > len(old_bone_order):
             del (old_bone_order[-1]) # delete last index
