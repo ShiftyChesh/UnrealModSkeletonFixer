@@ -42,6 +42,7 @@ those ORIGINAL files should be placed in the mappings folder then in a folder wi
  - Currently only tested skeletons with nearly the same amount of bones as the original. Haven't tested other cases
  - Doesn't support animations (yet)
  - Can't add new bones in for custom skeletons (yet)
+ - Should support multiple different skeleton asset files per mod, but untested
 
 ### FAQ:
  - Q: What is in ExampleMod_P?

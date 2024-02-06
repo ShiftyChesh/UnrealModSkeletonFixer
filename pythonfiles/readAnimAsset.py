@@ -7,7 +7,7 @@ import json
 
 # little or big endian
 ENDIAN: Literal["little", "big"] = "little"
-BoneIndex = namedtuple('BoneIndex', 'bone_name_index parent_index')
+BoneData = namedtuple('BoneData', 'bone_name_index parent_index')
 
 
 # Get the index name pairings of the skeleton form the header .uasset file. needed in order to remap the indexes to fit the original order
@@ -39,7 +39,7 @@ def read_uasset(file_name):
 
 
 # read the skeleton data stored in the .uexp file (assuming its skeleton data)
-def read_skel_uexp(file_name) -> Sequence[BoneIndex]:
+def read_skel_uexp(file_name) -> Sequence[BoneData]:
     """Returns a sequence of bones that contains their name indexes and the array index of their parent bone.
     Getting the name of the bone requires the associate name index using the name_mappings from the .uasset file"""
     bone_order = []  # order of bones by name index, and parent
@@ -54,12 +54,31 @@ def read_skel_uexp(file_name) -> Sequence[BoneIndex]:
             for i in range(bone_count):
                 bone_name_index = int.from_bytes(mm[start_index:start_index + 4], ENDIAN)
                 parent_index = int.from_bytes(mm[start_index + 8:start_index + 12], ENDIAN, signed=True)
-                bone_order.append(BoneIndex(bone_name_index, parent_index))
+                bone_order.append(BoneData(bone_name_index, parent_index))
                 start_index += 12  # size of struct
     return bone_order
 
+def write_anim_uexp_bone_index_order(file_name, bone_index_remap: {int, int}):
+    """Writes to a target animation file and updates the animation file's bone index order"""
+    if bone_index_remap is None: return
+    with open(file_name,"r+b") as f:
+        with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE) as mm:
+            # since you can basically guarantee every sekeleton is in order at least for the first 3 bones, this dumb AOB search should work
+            # if someone sees this and knows a more reliable way to parse .uexp data, please let me know or create a GitHub issue!
+            bone_map_start = mm.find(b'\x00\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00')
+            if bone_map_start == -1:
+                print(f"The hacky solution for finding an animation's bone order failed for file {file_name}\nPlease let the creator of this tool know.")
+                return
+            anim_bone_count = int.from_bytes(mm[bone_map_start-4:bone_map_start],ENDIAN)
+            data_offset = bone_map_start
+            for index in range(anim_bone_count):
+                new_index = bone_index_remap[index]
+                mm[data_offset:data_offset+4] = int.to_bytes(new_index,4,ENDIAN)
+                data_offset += 4
 
-def write_skel_uexp_bone_order(file_name, bone_order: Sequence[BoneIndex]):
+
+def write_skel_uexp_bone_order(file_name, bone_order: Sequence[BoneData]):
+    """Writes to a target skeleton .uexp file and updates the bone order data"""
     if bone_order is None: return
     with open(file_name, "r+b") as f:
         with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE) as mm:
