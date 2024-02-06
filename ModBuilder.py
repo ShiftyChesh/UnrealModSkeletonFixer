@@ -61,12 +61,11 @@ def bone_realignment(mod_name, mod_files, config):
             mapping_data = mapper.read_mapping_file(mapping_file_path)
         elif file_name in os.listdir(mapping_path):
             mapping_data = create_mapping(name, mapping_file_path, mapping_path)
-
         else:
-            print(f"WARNING: Unable to find/create mapping file for skeleton file asset: {skel_file}")
+            print(f"WARNING: Unable to find/create mapping file for skeleton file asset: {skel_file}\nmake sure you have a copy of the original skeleton.uasset &.uexp in the mapping folder for this mod")
             continue
         if not mapping_data:
-            print(f"unable to read mapping file data: {mapping_file_path}")
+            print(f"unable to read mapping file data: {mapping_file_path}\nmake sure you have a copy of the original skeleton.uasset &.uexp in the mapping folder for this mod")
             continue
         # now that we have the mapping data, time to get the .uasset and .uexp files for the skeleton that we want to edit
         skel_file_dir = os.path.dirname(skel_file)

@@ -8,7 +8,7 @@ Please open Issues if you have any problems using this tool.
 if you want to understand the technical side of what this tool does, check out the file "pythonfiles/Unreal Skeletons Technical Stuff.txt" 
 
 ### How To Use:
-Double-click on the "ModBuilder.bat" file, and it will work automatically if the config setup steps have been completed.
+Double-click on the "ModBuilder.bat" file, and it will work automatically, once the config setup steps have been completed (see section: Config Setup)
 
 ## Mod Building Automation
 This may seem out of place for a tool that's only supposed to mod skeleton files, 
@@ -23,8 +23,9 @@ In order to get full use out of this tool, it requires some setup steps.
 Unfortunately the version found by googling is only version 4.27 so the version in this link has to be used to my knowledge.
 
 #### Config Setup:
-the config.json file must be edited for most features to work.
+the config.json file must have the "cook_content_folder", "packer_path", and "mods_p_path" updated in order to work fully
 The config json fields do the following:
+- "cook_content_folder" : string - Path to the Cooked/..../Content folder in Unreal that you use to create mods
 - "autopack_mods" : bool - If true, automatically creates .pak files of mods in the 'mods' folder/ Requires "packer_path" to be valid
 - "packer_path" : string - Path to the UnrealPak.exe file for building .pak files. Only needs a valid path if "autopack_mods" is true
 - "bone_fix" : bool - If true, any skeleton uassets will be fixed based on the source mappings found in the 'mapping' folder (see section: ### Mapping Setup)
@@ -40,7 +41,6 @@ those ORIGINAL files should be placed in the mappings folder then in a folder wi
 
 ### Limitations
  - Currently only tested skeletons with nearly the same amount of bones as the original. Haven't tested other cases
- - Doesn't support animations (yet)
  - Can't add new bones in for custom skeletons (yet)
  - Should support multiple different skeleton asset files per mod, but untested
 
@@ -54,8 +54,6 @@ those ORIGINAL files should be placed in the mappings folder then in a folder wi
    This is currently being worked on as a feature
  
 - Q: How come the animations I patched in with the skeleton look wrong?
-  - A: Fixing the mod skeleton breaks the animations that use it for the same reason that it fixes the skeleton for use on the original animations.
-  The feature to also fix custom animations linked to the skeleton is currently in progress
-  (this also means adding custom animations without patching the skeleton in the future)
+  - A: This mod should automatically fix animations added as long as the skeleton file they use is also cooked. if this is not the case please leave an issue
 - Q: If I have other questions/comments/concerns, how do I contact you?
   - A: Currently the best chance is on the Palworld Discord, look for the username Shifty
