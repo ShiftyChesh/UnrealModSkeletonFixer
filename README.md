@@ -6,6 +6,10 @@ Originally made for Palworld, it currently has not been tested on other games.
 Please open Issues if you have any problems using this tool.
 
 if you want to understand the technical side of what this tool does, check out the file "pythonfiles/Unreal Skeletons Technical Stuff.txt" 
+
+### How To Use:
+Double-click on the "ModBuilder.bat" file, and it will work automatically if the config setup steps have been completed.
+
 ## Mod Building Automation
 This may seem out of place for a tool that's only supposed to mod skeleton files, 
 but the process to manually run the commands necessary to fix the skeleton can be confusing and annoying. 
@@ -33,8 +37,6 @@ In order for the bone remapping to work, you need to make sure you have the ORIG
 They can be exported as raw uasset data by [FModel](https://fmodel.app/).
 those ORIGINAL files should be placed in the mappings folder then in a folder with the same name as the mod containing the skeleton uasset you wish to fix. This can be seen in the included ExampleMod_P mod
 
-### How To Use:
-Double-click on the "ModBuilder.bat" file, and it will work automatically if the config setup steps have been completed.
 
 ### Limitations
  - Currently only tested skeletons with nearly the same amount of bones as the original. Haven't tested other cases
