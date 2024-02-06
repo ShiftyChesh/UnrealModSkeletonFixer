@@ -46,8 +46,8 @@ those ORIGINAL files should be placed in the mappings folder then in a folder wi
 
 ### FAQ:
  - Q: What is in ExampleMod_P?
-   - A: A Palworld mod that gives Penking 3 hats instead of 1. Also, intentionally messes up his beak.
-   (Future version of this mod will hopefully include an easier to find Pal to verify the mod's successful patching & bone fixing)
+   - A: A Palworld mod that gives the pink cat sunglasses. That's all. that way its obvious if the mod works.
+
  
  - Q: Does this work if I have extra bones on the skeleton not found on the original?
    - A: yes & no. currently the mod does not support adding extra bones and those bones will be truncated/removed when fixing the skeleton.

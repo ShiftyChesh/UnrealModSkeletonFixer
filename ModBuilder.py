@@ -55,17 +55,21 @@ def bone_realignment(mod_name, mod_files, config):
         name = os.path.splitext(file_name)[0]
         mapping_file_name = f"{name}-map.json"
         # check if mapping file exists
-        mapping_file_path = f"{mapping_path}/{mapping_file_name}"
+        mapping_file_path = pathlib.Path(f"{mapping_path}/{mapping_file_name}")
+        if not mapping_file_path.parent.exists():
+            mapping_file_path.parent.mkdir(exist_ok=True,parents=True)
         mapping_data = {}
-        if os.path.exists(mapping_file_path):
+        if mapping_file_path.exists():
             mapping_data = mapper.read_mapping_file(mapping_file_path)
         elif file_name in os.listdir(mapping_path):
             mapping_data = create_mapping(name, mapping_file_path, mapping_path)
         else:
-            print(f"WARNING: Unable to find/create mapping file for skeleton file asset: {skel_file}\nmake sure you have a copy of the original skeleton.uasset &.uexp in the mapping folder for this mod")
+            print(
+                f"WARNING: Unable to find/create mapping file for skeleton file asset: {skel_file}\nmake sure you have a copy of the original skeleton.uasset &.uexp in the mapping folder for this mod")
             continue
         if not mapping_data:
-            print(f"unable to read mapping file data: {mapping_file_path}\nmake sure you have a copy of the original skeleton.uasset &.uexp in the mapping folder for this mod")
+            print(
+                f"unable to read mapping file data: {mapping_file_path}\nmake sure you have a copy of the original skeleton.uasset &.uexp in the mapping folder for this mod")
             continue
         # now that we have the mapping data, time to get the .uasset and .uexp files for the skeleton that we want to edit
         skel_file_dir = os.path.dirname(skel_file)
@@ -103,6 +107,12 @@ def update_mod_config(mod_config, cook_content_folder, mod_name, mod_files):
     mod_config_file = pathlib.Path(f"{mapping_dir}/{MOD_CONFIG_NAME}")
     mod_content_path = ""
 
+    abs_path = str(mod_files[0])
+    if mod_config is None or not mod_config["mod_content_path"]:
+        if len(mod_files) > 0:
+            mod_content_path = abs_path[:abs_path.find("Content")+8]
+    else:
+        mod_content_path = mod_config["mod_content_path"]
     mod_cook_paths = []
     if mod_config is None:  # If no mod config, create lsit of files from scratch
         for mod_file in mod_files:
@@ -111,7 +121,6 @@ def update_mod_config(mod_config, cook_content_folder, mod_name, mod_files):
             if (start_index == -1):
                 print(f"unable to find cooked content path for: {mod_file.name}")
             else:
-                mod_content_path = abs_path[:start_index + 8]
                 mod_cook_paths.append(
                     abs_path[start_index + 8:])  # +8 because we dont need to content folder name twice
     else:  # has mod config, mod_cook_paths should be loaded from config directly
@@ -122,9 +131,9 @@ def update_mod_config(mod_config, cook_content_folder, mod_name, mod_files):
     if not mod_config_file.parent.exists():
         mod_config_file.parent.mkdir(exist_ok=True, parents=True)
     mod_config = {
-            "mod_content_path": mod_content_path,
-            "mod_files": mod_cook_paths
-        }
+        "mod_content_path": mod_content_path,
+        "mod_files": mod_cook_paths
+    }
     with open(mod_config_file, "w+") as f:
         json.dump(mod_config, f, indent=2)
     return mod_config
@@ -215,12 +224,21 @@ def write_mapping_config(packer_path):
 
         }, f, indent=2)
 
-
+# run starts here
 if __name__ == "__main__":
     mods_dir = f"{os.getcwd()}/{MOD_DIR}"
     dir_folders = [name for name in os.listdir(mods_dir) if os.path.isdir(f"mods/{name}") and not name.startswith('.')]
     config = read_mapping_config()
+    success= True
+    try:
+        build_mods(dir_folders, config) # where all the work is actually done
+    except Exception as ex:
+        success = False
+        print(ex)
+        print("Failed to build correctly.")
+        input()
+        raise ex
 
-    build_mods(dir_folders, config)
-    print("Build Complete!")
+    if success:
+        print("Build Complete!")
     input()

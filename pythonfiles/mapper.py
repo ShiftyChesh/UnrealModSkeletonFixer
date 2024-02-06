@@ -48,6 +48,11 @@ def bone_order_from_mapping(mapping_data, old_bone_order, old_name_mapping) -> (
     extra_bones = []
     bone_index_order = {}
 
+    # make sure first bone is root bone. if not, you got yourself a problem
+    root_bone_name = old_name_mapping[old_bone_order[0].bone_name_index]
+    if not (root_bone_name == "root"):
+        raise Exception("Skeleton used in mod does not have the base name 'Armature'")
+
     for old_index, boneData in enumerate(old_bone_order):
         # print(map)
         bone_name = old_name_mapping[boneData.bone_name_index]

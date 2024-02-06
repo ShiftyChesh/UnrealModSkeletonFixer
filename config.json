@@ -3,6 +3,7 @@
   "autopack_mods":true,
   "packer_path": "D:/Extractors/Unreal/UnrealPak/UnrealPak.exe",
   "bone_fix":true,
+  "keep_skeleton":true,
   "anim_search_pattern":"AS_*",
   "mods_p_path": "F:/SteamLibrary/steamapps/common/Palworld/Pal/Content/Paks/~mods/MyMods",
   "move_all_mods":true,
