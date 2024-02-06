@@ -89,6 +89,11 @@ def bone_realignment(mod_name, mod_files, config):
                 ream.write_anim_uexp_bone_index_order(anim_file, bone_index_remap)
                 print(f"Bones for animation {anim_file.name} have been fixed")
 
+        if not config["keep_skeleton"]:
+            skel_file_noext = os.path.splitext(skel_file)[0]
+            os.remove(f"{skel_file_noext}.uexp")
+            os.remove(f"{skel_file_noext}.uasset")
+
 
 def copy_cooked_files_to_mod(mod_config, cook_content_folder, mod_name):
     """Uses the mod config data to copy over the cooked files into the mod"""
@@ -101,7 +106,7 @@ def copy_cooked_files_to_mod(mod_config, cook_content_folder, mod_name):
 
 
 # run build steps for each mod
-def update_mod_config(mod_config, cook_content_folder, mod_name, mod_files):
+def update_mod_config(mod_config, mod_name, mod_files):
     """Takes the list of mod files and finds ones with the same name in the cook directory"""
     mapping_dir = f"{MAPPING_DIR}/{mod_name}"
     mod_config_file = pathlib.Path(f"{mapping_dir}/{MOD_CONFIG_NAME}")
@@ -125,8 +130,7 @@ def update_mod_config(mod_config, cook_content_folder, mod_name, mod_files):
                     abs_path[start_index + 8:])  # +8 because we dont need to content folder name twice
     else:  # has mod config, mod_cook_paths should be loaded from config directly
         mod_cook_paths = mod_config["mod_files"]
-    for mod_cook_path in mod_cook_paths:
-        cook_file = f"{cook_content_folder}/{mod_cook_path}"
+
 
     if not mod_config_file.parent.exists():
         mod_config_file.parent.mkdir(exist_ok=True, parents=True)
@@ -162,17 +166,23 @@ def build_mods(mod_folders, config):
         mod_files = []
         # get all mod files
         for file in pathlib.Path(abs_folder).rglob('*'):
-            if os.path.isfile(file):
+            if file.exists():
                 mod_files.append(file)
         # import files from cook folder
         # update mod config using existing files in mod folder
         cook_folder = config["cook_content_folder"]
         if os.path.exists(cook_folder):
             mod_config = read_mod_config(mod_name)
-            mod_config = update_mod_config(mod_config, cook_folder, mod_name, mod_files)
+            mod_config = update_mod_config(mod_config, mod_name, mod_files)
             # read mod config
             copy_cooked_files_to_mod(mod_config, cook_folder, mod_name)
             print(f"Copied matching cook folder files into mod {mod_name}")
+
+            mod_files = [] # re-init mod_files list
+            # get all mod files
+            for file in pathlib.Path(abs_folder).rglob('*'):
+                if file.exists():
+                    mod_files.append(file)
         else:
             print(f"WARNING: Cannot find cook content folder with path {cook_folder}")
         # now copy the cooked files and move them over!
@@ -181,6 +191,7 @@ def build_mods(mod_folders, config):
         bone_fix = config["bone_fix"]
         if bone_fix:
             bone_realignment(mod_name, mod_files, config)
+
 
         # build mods
         packer_exe = config["packer_path"]
