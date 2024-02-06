@@ -1,0 +1,31 @@
+This file is for people who want to know why this tool is necessary and what it does.
+
+If you've tried mesh replacement, you've been told not to include the skeleton asset in the package mod file, despite requiring it in the cooking process.
+If at any point you forgot or choose not to, you would find your modded mesh possibly looking very wrong, with limbs stretched to wrong locations.
+
+But this can be fixed! And to understand how, you first need to know how Unreal stores animations and skeleton data.
+Skeletons hold bone names and order as data that animations can use to reduce the amount of data they need to store.
+Animations therefore only store the index of the bones they are animating. If for whatever reason the animation's bone index is incorrect,
+the animation will animate the wrong bones! Like moving the head bone at the location where the foot bone should be.
+
+Fortunately, Unreal makes the obvious choice of ordering bones sequentially as it goes up the bone hierarchy,
+or at least it normally does... but sometimes Unreal will purposefully change the bone order, so you get bone 52 in between bone 10 and 11 in animation files.
+Why does that happen?
+
+Well... if Unreal has to reimport a skeleton in the editor, sometimes it has additional bones.
+These bones need to be added to the bone list, but if they were added in the middle of the list, they would mess up the entire bone index,
+breaking all the animations! So instead added bones get sent to the end of the skeleton bone list.
+For example, if the developers added 'twist' bones to a model at a later point, they would be parented to the shoulder bone,
+and would normally be indexed right after (say, index 11). But because the model was updated/reimported, they are added at the end.
+
+Animations aren't under any such restriction though, and will order the animated bones as you would normally expect the
+hierarchy to be like with the added bones. Hence, why bone 52 may be between 10 and 11 for animation files.
+Ultimately this means that both old animations and new animations work with the skeleton even after you make changes to it in the Unreal editor.
+
+HOWEVER, modding is outside of this ecosystem of changes, and when you import the model + skeleton that includes all the extra bones they added overtime,
+THOSE get added in the regular order. Meaning that your imported skeleton's 'twist' bone IS at index 11, instead of 52.
+Unfortunately, the original animation files expects 'upperarm_twist_l' at index 52, and animates the wrong bone. Even worse is because
+of the bone being at index 11, every bone after that is also at the wrong index for the animations, ruining it completely.
+
+The solution is to edit the cooked uasset files, (partially because I don't know how to edit the skeleton data directly in the Unreal Editor pre-baking)
+so that the bone order matches the original skeleton, and so the original animations point to the correct bone index.
