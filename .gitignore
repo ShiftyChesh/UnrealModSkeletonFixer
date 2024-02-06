@@ -2,6 +2,7 @@
 # My ignores
 mods/
 !mods/ExampleMod_P/
+mapping/*.json
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
