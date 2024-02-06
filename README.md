@@ -29,6 +29,7 @@ The config json fields do the following:
 - "autopack_mods" : bool - If true, automatically creates .pak files of mods in the 'mods' folder/ Requires "packer_path" to be valid
 - "packer_path" : string - Path to the UnrealPak.exe file for building .pak files. Only needs a valid path if "autopack_mods" is true
 - "bone_fix" : bool - If true, any skeleton uassets will be fixed based on the source mappings found in the 'mapping' folder (see section: ### Mapping Setup)
+- "keep_skeleton" : bool - If false, deletes skeleton file after bone fix so built mod doesn't contain skeleton file
 - "mods_p_path" : string - Path to your mods folder for patch mods. This is the unreal mods in the paks directory. For Palworld it's the: /Pal/Content/Paks/~mods folder
 - "move_all_mods" : bool - If true, copies all built mods into the "mods_p_path" directory
 - moveover_mod_list : string[] - Lists mods you want to automatically move to "mods_p_path" is "move_all_mods" is false. Good if you only want to move/test some of your mods.
