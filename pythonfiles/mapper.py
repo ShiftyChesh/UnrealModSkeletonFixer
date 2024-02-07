@@ -35,8 +35,6 @@ def read_mapping_file(file_name):
 # for context, 'old' refers to the order being modified. in this case the modded data.
 def bone_order_from_mapping(mapping_data, old_bone_order, old_name_mapping) -> (Sequence[BoneData], {int, int}):
     if len(mapping_data["bones"]) != len(old_bone_order):
-        print("bone replacement for models with different numbers of bones are not yet supported.")
-        print("Continuing by truncating new bones array. (additional bones will be lost if modding skeleton)")
 
         while len(mapping_data["bones"]) > len(old_bone_order):
             del (old_bone_order[-1])  # delete last index
@@ -55,11 +53,22 @@ def bone_order_from_mapping(mapping_data, old_bone_order, old_name_mapping) -> (
         # print(map)
         bone_name = old_name_mapping[boneData.bone_name_index]
         new_item = new_order_mapping.get(bone_name)
-        old_parent_name = old_name_mapping[old_bone_order[boneData.parent_index].bone_name_index]
+        old_parent_index = boneData.parent_index
+        old_parent_name = old_name_mapping[old_bone_order[old_parent_index].bone_name_index]
         if boneData.parent_index == -1:
             new_parent_index = -1
         else:
-            new_parent_index = new_order_mapping[old_parent_name]["bone_index"]
+            new_parent = new_order_mapping.get(old_parent_name)
+            if new_parent is None: # old_parent_name was a custom bone!
+                new_parent_index = -2
+                for index,extra in enumerate(extra_bones):
+                    temp_old_index = extra[1]
+                    if temp_old_index == old_parent_index:
+                        new_parent_index = len(new_bone_order) + index # parent index is an extra bone
+                        break
+
+            else:
+                new_parent_index = new_parent["bone_index"]
         new_bone_data = BoneData(boneData.bone_name_index, new_parent_index)
         if new_item is None:  # bone doesnt exist in original skeleton
             extra_bones.append((new_bone_data,old_index))
@@ -74,7 +83,16 @@ def bone_order_from_mapping(mapping_data, old_bone_order, old_name_mapping) -> (
         bone_index_order[old_bone_index] = bone_index
         new_bone_order.append(bone)
 
-    return (new_bone_order, bone_index_order)
+    debug_new_name_order = [old_name_mapping[boneData.bone_name_index] for boneData in new_bone_order]
+    name_to_new_index = dict((name,index) for index,name in enumerate(debug_new_name_order))
+    debug_old_name_order = [old_name_mapping[boneData.bone_name_index] for boneData in old_bone_order]
+    fixed_bone_index_order = {}
+
+    for old_index,name in enumerate(debug_old_name_order):
+        new_index = name_to_new_index[name]
+        fixed_bone_index_order[old_index] = new_index
+
+    return new_bone_order, fixed_bone_index_order
 
 
 if __name__ == "__main__":

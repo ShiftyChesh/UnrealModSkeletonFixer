@@ -1,13 +1,18 @@
 {
+  "pull_mod_files_from_cook_folder" : true,
   "cook_content_folder":"C:/Users/Shifty/Documents/Unreal Projects/PalworldMods/Saved/Cooked/Windows/PalworldMods/Content",
   "autopack_mods":true,
   "packer_path": "D:/Extractors/Unreal/UnrealPak/UnrealPak.exe",
   "bone_fix":true,
-  "keep_skeleton":false,
+  "keep_skeleton":true,
   "anim_search_pattern":"AS_*",
   "mods_p_path": "F:/SteamLibrary/steamapps/common/Palworld/Pal/Content/Paks/~mods/MyMods",
+  "build_all_mods": false,
+  "build_mod_list": [
+    "ExampleMod_P"
+  ],
   "move_all_mods":true,
   "moveover_mod_list":[
-	"Example_P"
+	"ExampleMod_P"
   ]
 }

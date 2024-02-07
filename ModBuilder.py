@@ -6,6 +6,7 @@ import subprocess
 import shutil
 import pythonfiles.mapper as mapper
 import pythonfiles.readAnimAsset as ream
+import traceback
 
 # requires python 3.4+
 
@@ -45,6 +46,8 @@ def bone_realignment(mod_name, mod_files, config):
     anim_regex = config["anim_search_pattern"]
     anim_files = [file for file in mod_files if re.match(anim_regex, file.name) and file.name.endswith('.uexp')]
 
+    if len(skel_files) == 0:
+        print("Could not find any skeletons to fix bones for")
     # next, check that we have a mapping file set up, or the files needed to create a mapping file
     # this runs for each unique skeleton found in the mod's subdirectories (usually 1 but can be more)
     if len(skel_files) > 1:
@@ -57,7 +60,7 @@ def bone_realignment(mod_name, mod_files, config):
         # check if mapping file exists
         mapping_file_path = pathlib.Path(f"{mapping_path}/{mapping_file_name}")
         if not mapping_file_path.parent.exists():
-            mapping_file_path.parent.mkdir(exist_ok=True,parents=True)
+            mapping_file_path.parent.mkdir(exist_ok=True, parents=True)
         mapping_data = {}
         if mapping_file_path.exists():
             mapping_data = mapper.read_mapping_file(mapping_file_path)
@@ -88,7 +91,8 @@ def bone_realignment(mod_name, mod_files, config):
             for anim_file in anim_files:
                 ream.write_anim_uexp_bone_index_order(anim_file, bone_index_remap)
                 print(f"Bones for animation {anim_file.name} have been fixed")
-
+        else:
+            print(f"WARNING: Could not rebuild bones for Skeleton: {name}")
         if not config["keep_skeleton"]:
             skel_file_noext = os.path.splitext(skel_file)[0]
             os.remove(f"{skel_file_noext}.uexp")
@@ -115,7 +119,7 @@ def update_mod_config(mod_config, mod_name, mod_files):
     abs_path = str(mod_files[0])
     if mod_config is None or not mod_config["mod_content_path"]:
         if len(mod_files) > 0:
-            mod_content_path = abs_path[:abs_path.find("Content")+8]
+            mod_content_path = abs_path[:abs_path.find("Content") + 8]
     else:
         mod_content_path = mod_config["mod_content_path"]
     mod_cook_paths = []
@@ -130,7 +134,6 @@ def update_mod_config(mod_config, mod_name, mod_files):
                     abs_path[start_index + 8:])  # +8 because we dont need to content folder name twice
     else:  # has mod config, mod_cook_paths should be loaded from config directly
         mod_cook_paths = mod_config["mod_files"]
-
 
     if not mod_config_file.parent.exists():
         mod_config_file.parent.mkdir(exist_ok=True, parents=True)
@@ -159,6 +162,11 @@ def build_mods(mod_folders, config):
     for folder in mod_folders:
         abs_folder = f"{os.getcwd()}/{MOD_DIR}/{folder}"
         mod_name = os.path.basename(folder)
+
+        if not config["build_all_mods"] and mod_name not in config["build_mod_list"]:
+            # do not build mod, skip!
+            continue
+
         print(
             f"""------------------------------------------
         Building {mod_name}
@@ -171,32 +179,36 @@ def build_mods(mod_folders, config):
         # import files from cook folder
         # update mod config using existing files in mod folder
         cook_folder = config["cook_content_folder"]
-        if os.path.exists(cook_folder):
-            mod_config = read_mod_config(mod_name)
-            mod_config = update_mod_config(mod_config, mod_name, mod_files)
-            # read mod config
-            copy_cooked_files_to_mod(mod_config, cook_folder, mod_name)
-            print(f"Copied matching cook folder files into mod {mod_name}")
-
-            mod_files = [] # re-init mod_files list
-            # get all mod files
-            for file in pathlib.Path(abs_folder).rglob('*'):
-                if file.exists() and file.is_file():
-                    mod_files.append(file)
-        else:
-            print(f"WARNING: Cannot find cook content folder with path {cook_folder}")
+        if config["pull_mod_files_from_cook_folder"]:
+            print("\nUpdating mod files by pulling copies from cook folder.\n----------------------------")
+            if os.path.exists(cook_folder):
+                mod_config = read_mod_config(mod_name)
+                mod_config = update_mod_config(mod_config, mod_name, mod_files)
+                # read mod config
+                copy_cooked_files_to_mod(mod_config, cook_folder, mod_name)
+                # print(f"Copied matching cook folder files into mod {mod_name}")
+                num_pull_files = len(mod_config["mod_files"])
+                mod_files = []  # re-init mod_files list
+                # get all mod files
+                for file in pathlib.Path(abs_folder).rglob('*'):
+                    if file.exists() and file.is_file():
+                        mod_files.append(file)
+                print(f"Updated {num_pull_files} files")
+            else:
+                print(f"WARNING: Cannot find cook content folder with path {cook_folder}")
         # now copy the cooked files and move them over!
 
         # perform skeleton mesh update functions...
         bone_fix = config["bone_fix"]
         if bone_fix:
+            print("\nFixing bones order for skeleton, mesh, and animation files\n----------------------------")
             bone_realignment(mod_name, mod_files, config)
-
 
         # build mods
         packer_exe = config["packer_path"]
         pak_name = f"{os.getcwd()}/{MOD_DIR}/{mod_name}.pak"
         if config["autopack_mods"]:
+            print("\nBuilding .pak file for mod\n----------------------------")
             if os.path.exists(packer_exe):
                 build_command = f"{packer_exe} {pak_name} -create={temp_file} -compress"
                 pak_search_paths = f"\"{abs_folder}/*.*\" \"..\\..\\..\\*.*\""  # just search inside the mod folder. thats it
@@ -211,8 +223,8 @@ def build_mods(mod_folders, config):
         mod_dir = config["mods_p_path"]
         auto_move = config["move_all_mods"] or mod_name in config["moveover_mod_list"]
         if auto_move:
+            print(f"\nCopying {mod_name}.pak into mods folder\n----------------------------")
             if os.path.exists(mod_dir):
-                print(f"Copying {mod_name}.pak into mods folder")
                 shutil.copyfile(pak_name, f"{mod_dir}/{mod_name}.pak")
             else:
                 print(
@@ -235,21 +247,19 @@ def write_mapping_config(packer_path):
 
         }, f, indent=2)
 
+
 # run starts here
 if __name__ == "__main__":
     mods_dir = f"{os.getcwd()}/{MOD_DIR}"
     dir_folders = [name for name in os.listdir(mods_dir) if os.path.isdir(f"mods/{name}") and not name.startswith('.')]
     config = read_mapping_config()
-    success= True
+    success = True
     try:
-        build_mods(dir_folders, config) # where all the work is actually done
+        build_mods(dir_folders, config)  # where all the work is actually done
     except Exception as ex:
         success = False
-        print(ex)
         print("Failed to build correctly.")
-        input()
-        raise ex
-
+        print(traceback.format_exception(ex))
     if success:
         print("Build Complete!")
     input()
