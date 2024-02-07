@@ -2,7 +2,8 @@
 # My ignores
 mods/*
 !mods/ExampleMod_P/
-mapping/*.json
+mapping/*
+!mapping/ExampleMod_P/
 modconfig.json
 # Byte-compiled / optimized / DLL files
 __pycache__/
