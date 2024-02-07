@@ -166,7 +166,7 @@ def build_mods(mod_folders, config):
         mod_files = []
         # get all mod files
         for file in pathlib.Path(abs_folder).rglob('*'):
-            if file.exists():
+            if file.exists() and file.is_file():
                 mod_files.append(file)
         # import files from cook folder
         # update mod config using existing files in mod folder
@@ -181,7 +181,7 @@ def build_mods(mod_folders, config):
             mod_files = [] # re-init mod_files list
             # get all mod files
             for file in pathlib.Path(abs_folder).rglob('*'):
-                if file.exists():
+                if file.exists() and file.is_file():
                     mod_files.append(file)
         else:
             print(f"WARNING: Cannot find cook content folder with path {cook_folder}")

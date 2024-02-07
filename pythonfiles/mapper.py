@@ -36,13 +36,11 @@ def read_mapping_file(file_name):
 def bone_order_from_mapping(mapping_data, old_bone_order, old_name_mapping) -> (Sequence[BoneData], {int, int}):
     if len(mapping_data["bones"]) != len(old_bone_order):
         print("bone replacement for models with different numbers of bones are not yet supported.")
-        print("Continue by truncating new bones array? y/n")
-        answer = input()
-        if answer.find('y') == -1:
-            print("Not baking bones")
-            return (None, None)
+        print("Continuing by truncating new bones array. (additional bones will be lost if modding skeleton)")
+
         while len(mapping_data["bones"]) > len(old_bone_order):
             del (old_bone_order[-1])  # delete last index
+
     new_order_mapping = dict((item["bone_name"], item) for item in mapping_data["bones"])
     new_bone_order = [BoneData(0, 0)] * mapping_data["bone_count"]
     extra_bones = []
@@ -64,15 +62,16 @@ def bone_order_from_mapping(mapping_data, old_bone_order, old_name_mapping) -> (
             new_parent_index = new_order_mapping[old_parent_name]["bone_index"]
         new_bone_data = BoneData(boneData.bone_name_index, new_parent_index)
         if new_item is None:  # bone doesnt exist in original skeleton
-            extra_bones.append(new_bone_data)
+            extra_bones.append((new_bone_data,old_index))
             continue
         new_index = new_item["bone_index"]
         bone_index_order[old_index] = new_index
         # bone does exist, put it in correct location in array
         new_bone_order[new_index] = new_bone_data
-    for bone in extra_bones:
+
+    for bone,old_bone_index in extra_bones:
         bone_index = len(new_bone_order)
-        bone_index_order[bone_index] = bone_index
+        bone_index_order[old_bone_index] = bone_index
         new_bone_order.append(bone)
 
     return (new_bone_order, bone_index_order)

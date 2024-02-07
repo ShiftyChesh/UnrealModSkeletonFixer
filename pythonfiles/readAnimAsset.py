@@ -58,22 +58,24 @@ def read_skel_uexp(file_name) -> Sequence[BoneData]:
                 start_index += 12  # size of struct
     return bone_order
 
+
 def write_anim_uexp_bone_index_order(file_name, bone_index_remap: {int, int}):
     """Writes to a target animation file and updates the animation file's bone index order"""
     if bone_index_remap is None: return
-    with open(file_name,"r+b") as f:
+    with open(file_name, "r+b") as f:
         with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE) as mm:
             # since you can basically guarantee every sekeleton is in order at least for the first 3 bones, this dumb AOB search should work
             # if someone sees this and knows a more reliable way to parse .uexp data, please let me know or create a GitHub issue!
             bone_map_start = mm.find(b'\x00\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00')
             if bone_map_start == -1:
-                print(f"The hacky solution for finding an animation's bone order failed for file {file_name}\nPlease let the creator of this tool know.")
+                print(
+                    f"The hacky solution for finding an animation's bone order failed for file {file_name}\nPlease let the creator of this tool know.")
                 return
-            anim_bone_count = int.from_bytes(mm[bone_map_start-4:bone_map_start],ENDIAN)
+            anim_bone_count = int.from_bytes(mm[bone_map_start - 4:bone_map_start], ENDIAN)
             data_offset = bone_map_start
             for index in range(anim_bone_count):
                 new_index = bone_index_remap[index]
-                mm[data_offset:data_offset+4] = int.to_bytes(new_index,4,ENDIAN)
+                mm[data_offset:data_offset + 4] = int.to_bytes(new_index, 4, ENDIAN)
                 data_offset += 4
 
 
