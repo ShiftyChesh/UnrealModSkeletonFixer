@@ -53,11 +53,12 @@ those ORIGINAL files should be placed in the mappings folder then in a folder wi
    - A: A Palworld mod that gives the pink cat sunglasses and a hat that bends. its low quality, but shows what this tool can do
 
  
- - Q: Does this work if I have extra bones on the skeleton not found on the original?
-   - A: yes & no. currently the mod does not support adding extra bones and those bones will be truncated/removed when fixing the skeleton.
-   This is currently being worked on as a feature
+ - Q: Does this work with humans?
+   - A: I have no idea
  
 - Q: How come the animations I patched in with the skeleton look wrong?
-  - A: This mod should automatically fix animations added as long as the skeleton file they use is also cooked. if this is not the case please leave an issue
+  - A: This mod should automatically fix animations added as long as the skeleton file they use is also cooked. if this is not the case,
+  it's either your reimported your skeleton into unreal at some point, adding extra bones, or some unknown issue.
+  if you reimported, this can be fixed by deleting the animation,skeleton,and mesh files and dragging in your .fbx file
 - Q: If I have other questions/comments/concerns, how do I contact you?
   - A: Currently the best chance is on the Palworld Discord, look for the username Shifty
