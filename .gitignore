@@ -1,7 +1,7 @@
 ### Python template
 # My ignores
 mods/
-!mods/ExampleMod_P/
+!mods/ExampleMod_P/*
 mapping/*.json
 modconfig.json
 # Byte-compiled / optimized / DLL files
