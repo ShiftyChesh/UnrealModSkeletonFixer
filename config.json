@@ -7,7 +7,7 @@
   "keep_skeleton":true,
   "anim_search_pattern":"AS_*",
   "mods_p_path": "F:/SteamLibrary/steamapps/common/Palworld/Pal/Content/Paks/~mods/MyMods",
-  "build_all_mods": false,
+  "build_all_mods": true,
   "build_mod_list": [
     "ExampleMod_P"
   ],

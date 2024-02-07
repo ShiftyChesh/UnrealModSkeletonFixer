@@ -25,14 +25,18 @@ Unfortunately the version found by googling is only version 4.27 so the version 
 #### Config Setup:
 the config.json file must have the "cook_content_folder", "packer_path", and "mods_p_path" updated in order to work fully
 The config json fields do the following:
+- "pull_mod_files_from_cook_folder":bool - if true, enables this tool to pull files directly from the cooked assets output of Unreal
 - "cook_content_folder" : string - Path to the Cooked/..../Content folder in Unreal that you use to create mods
 - "autopack_mods" : bool - If true, automatically creates .pak files of mods in the 'mods' folder/ Requires "packer_path" to be valid
 - "packer_path" : string - Path to the UnrealPak.exe file for building .pak files. Only needs a valid path if "autopack_mods" is true
 - "bone_fix" : bool - If true, any skeleton uassets will be fixed based on the source mappings found in the 'mapping' folder (see section: ### Mapping Setup)
 - "keep_skeleton" : bool - If false, deletes skeleton file after bone fix so built mod doesn't contain skeleton file
+- "anim_search_pattern": string - the regex pattern used to find animation files in the mod that sohuld be fixed.
 - "mods_p_path" : string - Path to your mods folder for patch mods. This is the unreal mods in the paks directory. For Palworld it's the: /Pal/Content/Paks/~mods folder
+- "build_all_mods": bool - If true, builds all mods in the 'mods' folder.
+- "build_mod_list" : string[] - lists mods you want to build. useful if only building/testing a specific mod
 - "move_all_mods" : bool - If true, copies all built mods into the "mods_p_path" directory
-- moveover_mod_list : string[] - Lists mods you want to automatically move to "mods_p_path" is "move_all_mods" is false. Good if you only want to move/test some of your mods.
+- "moveover_mod_list" : string[] - Lists mods you want to automatically move to "mods_p_path" is "move_all_mods" is false. Good if you only want to move/test some of your mods.
 
 ### Mapping Setup
 In order for the bone remapping to work, you need to make sure you have the ORIGINAL skeleton uasset files from the game you are trying to mod. 
@@ -41,13 +45,12 @@ those ORIGINAL files should be placed in the mappings folder then in a folder wi
 
 
 ### Limitations
- - Currently only tested skeletons with nearly the same amount of bones as the original. Haven't tested other cases
- - Can't add new bones in for custom skeletons (yet)
+ - Doesn't work if you try and fix the bone order that has been reimported into Unreal itself (yet). The fix is to delete the file and import the entire .fbx file again
  - Should support multiple different skeleton asset files per mod, but untested
 
 ### FAQ:
  - Q: What is in ExampleMod_P?
-   - A: A Palworld mod that gives the pink cat sunglasses. That's all. that way its obvious if the mod works.
+   - A: A Palworld mod that gives the pink cat sunglasses and a hat that bends. its low quality, but shows what this tool can do
 
  
  - Q: Does this work if I have extra bones on the skeleton not found on the original?
