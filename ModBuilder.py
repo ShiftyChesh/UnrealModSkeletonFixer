@@ -101,6 +101,7 @@ def bone_realignment(mod_name, mod_files, config):
             skel_file_noext = os.path.splitext(skel_file)[0]
             os.remove(f"{skel_file_noext}.uexp")
             os.remove(f"{skel_file_noext}.uasset")
+            print(f"Deleted Skeleton {skel_file_noext}")
 
 
 def copy_cooked_files_to_mod(mod_config, cook_content_folder, mod_name):
