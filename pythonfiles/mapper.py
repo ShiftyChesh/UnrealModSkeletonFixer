@@ -35,9 +35,9 @@ def read_mapping_file(file_name):
 # for context, 'old' refers to the order being modified. in this case the modded data.
 def bone_order_from_mapping(mapping_data, old_bone_order, old_name_mapping) -> (Sequence[BoneData], {int, int}):
     if len(mapping_data["bones"]) != len(old_bone_order):
-
-        while len(mapping_data["bones"]) > len(old_bone_order):
-            del (old_bone_order[-1])  # delete last index
+        pass
+        # while len(mapping_data["bones"]) > len(old_bone_order):
+        #     del (old_bone_order[-1])  # delete last index
 
     new_order_mapping = dict((item["bone_name"], item) for item in mapping_data["bones"])
     new_bone_order = [BoneData(0, 0)] * mapping_data["bone_count"]

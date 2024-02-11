@@ -84,8 +84,12 @@ def bone_realignment(mod_name, mod_files, config):
         # sometimes you just need $100 for a new set of bones
         (new_bones, bone_index_remap) = mapper.bone_order_from_mapping(mapping_data, bone_order, name_mappings)
         if new_bones is not None:
-            ream.write_skel_uexp_bone_order(uexp, new_bones)
-            print(f"Rebuilt bones for Skeleton: {name}")
+
+            if len(new_bones) > len(bone_index_remap):
+                print("WARNING: fixed bone list is larger than original bone list. Skeleton .uasset/.uexp cannot be fixed and needs to be remove before building mod. Animations should still work though.")
+            else:
+                ream.write_skel_uexp_bone_order(uexp, new_bones)
+                print(f"Rebuilt bones for Skeleton: {name}")
             # now find and update all animations that use this skeleton
 
             for anim_file in anim_files:
@@ -256,10 +260,14 @@ if __name__ == "__main__":
     success = True
     try:
         build_mods(dir_folders, config)  # where all the work is actually done
-    except Exception as ex:
-        success = False
-        print("Failed to build correctly.")
-        print(traceback.format_exception(ex))
+    # except Exception as ex:
+    #     success = False
+    #     print("Failed to build correctly.")
+    #     print(traceback.format_exception(ex))
+    finally:
+        pass
     if success:
         print("Build Complete!")
+
+    print("\nPress any key to exit...")
     input()
