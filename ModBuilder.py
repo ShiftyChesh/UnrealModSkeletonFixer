@@ -261,10 +261,10 @@ if __name__ == "__main__":
     success = True
     try:
         build_mods(dir_folders, config)  # where all the work is actually done
-    # except Exception as ex:
-    #     success = False
-    #     print("Failed to build correctly.")
-    #     print(traceback.format_exception(ex))
+    except Exception as ex:
+        success = False
+        print("Failed to build correctly.")
+        print(traceback.format_exception(ex))
     finally:
         pass
     if success:
