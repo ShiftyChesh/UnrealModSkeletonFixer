@@ -84,13 +84,27 @@ def write_skel_uexp_bone_order(file_name, bone_order: Sequence[BoneData]):
     if bone_order is None: return
     with open(file_name, "r+b") as f:
         with mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_WRITE) as mm:
+            bone_count = len(bone_order)
+
             root_bone_index = mm.find(b'\xff\xff\xff\xff')
             start_index = root_bone_index - 8
+            data_start_index = root_bone_index - 12
             for bone in bone_order:
                 mm[start_index:start_index + 4] = int.to_bytes(bone.bone_name_index, 4, ENDIAN)
                 mm[start_index + 8:start_index + 12] = int.to_bytes(bone.parent_index, 4, ENDIAN, signed=True)
                 start_index += 12
-            mm.close()
+
+            # now also update order at the end of the .uexp file
+            # end location is  (# bones * (3 + 12 + 80 + 12) + header_end_index + 16 ) bytes
+            start_index = bone_count * (12 + 80) + data_start_index + 8
+
+            # start index is at bone count index
+            start_index += 4
+
+            for (index,bone) in enumerate(bone_order):
+                mm[start_index:start_index + 4] = int.to_bytes(bone.bone_name_index, 4, ENDIAN)
+                mm[start_index + 8: start_index + 12] = int.to_bytes(index, 4, ENDIAN)
+                start_index += 12
 
 
 def read_skel_assets_from_dir(working_dir, skel_asset_name=''):
