@@ -38,10 +38,18 @@ The config json fields do the following:
 - "move_all_mods" : bool - If true, copies all built mods into the "mods_p_path" directory
 - "moveover_mod_list" : string[] - Lists mods you want to automatically move to "mods_p_path" is "move_all_mods" is false. Good if you only want to move/test some of your mods.
 
-### Mapping Setup
+### Mapping File
 In order for the bone remapping to work, you need to make sure you have the ORIGINAL skeleton uasset files from the game you are trying to mod. 
 They can be exported as raw uasset data by [FModel](https://fmodel.app/).
 those ORIGINAL files should be placed in the mappings folder then in a folder with the same name as the mod containing the skeleton uasset you wish to fix. This can be seen in the included ExampleMod_P mod
+
+### Mod Config
+When a mod is built for the first time, a modconfig.json is created in the mapping/YOUR_MOD folder (where YOUR_MOD is the name of your mod).
+the modconfig.json file contains the source directories that this mod copies its files from, as part of the pull_mods_from_cook_folder step.
+if one or more of those source directories don't exist, an error will be thrown and the tool will fail to build.
+
+To update the modconfig.json, either open it and add/remove paths to files you want to copy. Alternatively delete the file, and it will be regenerated with an updated list of files.
+populating the list of files by seeing what has the same name as files in your mod's folder structure.
 
 
 ### Limitations
@@ -52,13 +60,15 @@ those ORIGINAL files should be placed in the mappings folder then in a folder wi
  - Q: What is in ExampleMod_P?
    - A: A Palworld mod that gives the pink cat sunglasses and a hat that bends. its low quality, but shows what this tool can do
 
- 
- - Q: Does this work with humans?
-   - A: I have no idea
+ - Q: I get a long string of text that ends with "FileNotFoundError [errorno ..." and lists a directory
+   - A: The program is looking for a file that it expects to exist, but can't find it. There are many possible reasons for this.
+     1. Most likely it is an issue with your modconfig.json file containing files that you no longer want. To learn how to fix, goto the "Mod Config" section above.
+     2. Alternatively, it could break if you change your mod name or move the entire folder somewhere else. Make sure your config.json and modconfig.json paths are correct.
  
 - Q: How come the animations I patched in with the skeleton look wrong?
   - A: This mod should automatically fix animations added as long as the skeleton file they use is also cooked. if this is not the case,
   it's either your reimported your skeleton into unreal at some point, adding extra bones, or some unknown issue.
   if you reimported, this can be fixed by deleting the animation,skeleton,and mesh files and dragging in your .fbx file
+
 - Q: If I have other questions/comments/concerns, how do I contact you?
   - A: Currently the best chance is on the Palworld Discord, look for the username Shifty
