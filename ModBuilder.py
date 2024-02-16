@@ -109,9 +109,15 @@ def copy_cooked_files_to_mod(mod_config, cook_content_folder, mod_name):
     files_to_copy = mod_config["mod_files"]
     abs_mod_content_path = mod_config["mod_content_path"]
     for copy_file in files_to_copy:
-        abs_cook_path = f"{cook_content_folder}/{copy_file}"
-        abs_mod_path = f"{abs_mod_content_path}/{copy_file}"
-        shutil.copyfile(abs_cook_path, abs_mod_path)
+        abs_cook_path = pathlib.Path(f"{cook_content_folder}/{copy_file}")
+        abs_mod_path = pathlib.Path(f"{abs_mod_content_path}/{copy_file}")
+
+        if not abs_cook_path.exists():
+            print(f"Unable to find cook file: \n{abs_cook_path}")
+        elif not abs_mod_path.parent.exists():
+            print(f"Unable to find output path to put cook file in: \n{abs_mod_path}")
+        else:
+            shutil.copyfile(abs_cook_path, abs_mod_path)
 
 
 # run build steps for each mod
@@ -215,7 +221,7 @@ def build_mods(mod_folders, config):
         if config["autopack_mods"]:
             print("\nBuilding .pak file for mod\n----------------------------")
             if os.path.exists(packer_exe):
-                build_command = f"{packer_exe} {pak_name} -create={temp_file} -compress"
+                build_command = f"\"{packer_exe}\" \"{pak_name}\" -create={temp_file} -compress"
                 pak_search_paths = f"\"{abs_folder}/*.*\" \"..\\..\\..\\*.*\""  # just search inside the mod folder. thats it
                 with open(temp_file, "w") as f:
                     f.write(pak_search_paths)
